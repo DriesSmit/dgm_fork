@@ -1,5 +1,10 @@
+import os
 from pathlib import Path
 import subprocess
+
+# Restrict Gigaplay edits to a single agent file (ss_dgm.py) to keep DGM mutations safe.
+GIGAPLAY_ROOT = Path(os.environ.get("GIGAPLAY_ROOT", "/home/dries/Develop/TufaLabs/Repos/Hackathon/repo/gigaplay")).resolve()
+GIGAPLAY_ALLOWED_EDIT = GIGAPLAY_ROOT / "algos" / "hardcoded" / "ss_dgm.py"
 
 def tool_info():
     return {
@@ -52,6 +57,13 @@ def validate_path(path: str, command: str) -> Path:
         raise ValueError(
             f"The path {path} is not an absolute path (must start with '/')."
         )
+
+    # Gigaplay safeguard: only allow edits within the whitelisted agent file.
+    if command in {"edit", "create"} and path_obj.is_relative_to(GIGAPLAY_ROOT):
+        if path_obj.resolve() != GIGAPLAY_ALLOWED_EDIT:
+            raise ValueError(
+                f"Editing within gigaplay is restricted to {GIGAPLAY_ALLOWED_EDIT}. Requested: {path}"
+            )
 
     if command == "view":
         # Path must exist

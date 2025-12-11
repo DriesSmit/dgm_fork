@@ -25,3 +25,4 @@ polyglot/predictions/
 
 final_results/
 analysis/output/
+.venv/
